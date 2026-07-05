@@ -421,10 +421,9 @@ function startHost(resume){
           buildDecks();
         }
         C.mode = "room"; C.conn = "ok"; C.sel = []; C.picked = false;
-        persistHost();
         grabWakeLock();
         sweepTimer = setInterval(hostSweep, PING_MS);
-        render();
+        broadcast();   /* builds C.pub and renders the lobby (also persists) */
       });
       peer.on("connection", wireGuest);
       peer.on("error", (e) => {
@@ -799,7 +798,8 @@ function vHome(){
       '<p>3. Each round, one player is the <b>Judge</b> 👑. Everyone else plays their funniest card to fill in the blank.</p>' +
       '<p>4. The Judge picks a winner. First to the target score takes the crown!</p>' +
       '<p>Works on iPhones, iPads, and Androids — any mix. 3\u201310 players. The host\u2019s screen has to stay on; it runs the game.</p>' +
-    '</div>';
+    '</div>' +
+    '<p class="codeHint" style="opacity:.45">v2</p>';
 }
 
 function emojiRow(){
