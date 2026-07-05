@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#241046" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Cards of Chaos</title>
+<style>
+  :root{
+    --grape:#241046; --grape-deep:#1a0b36; --ink:#1b1330;
+    --pink:#ff3d8b; --lime:#b6f24a; --tangerine:#ff8a3d;
+    --yellow:#ffd23d; --violet:#9b5cff; --cream:#fff8ec; --paper:#fffdf6;
+    --shadow:5px 6px 0 var(--ink);
+    --shadow-sm:3px 4px 0 var(--ink);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; height:100%;}
+  body{
+    background:var(--grape);
+    background-image:radial-gradient(rgba(155,92,255,.14) 1.5px, transparent 1.5px);
+    background-size:26px 26px;
+    color:var(--cream);
+    font-family:"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
+    min-height:100dvh;
+    overscroll-behavior:none;
+    touch-action:manipulation;
+  }
+  #app{
+    max-width:520px; margin:0 auto;
+    padding:calc(env(safe-area-inset-top,0px) + 18px) 16px calc(env(safe-area-inset-bottom,0px) + 28px);
+    min-height:100dvh;
+  }
+  h1.logo{
+    font-size:44px; line-height:.95; margin:10px 0 6px; font-weight:900;
+    letter-spacing:-1px; text-align:center; color:var(--cream);
+    text-shadow:3px 3px 0 var(--ink);
+  }
+  h1.logo .chaos{color:var(--pink);}
+  .tag{text-align:center; color:var(--lime); font-weight:800; margin:0 0 22px; font-size:15px;}
+  h2{font-size:26px; font-weight:900; margin:6px 0 14px; text-shadow:2px 2px 0 var(--ink);}
+  .lbl{display:block; font-weight:800; font-size:13px; letter-spacing:.8px; text-transform:uppercase; color:var(--yellow); margin:16px 0 6px;}
+  .field{
+    width:100%; font-size:18px; font-weight:800; color:var(--ink);
+    background:var(--paper); border:3px solid var(--ink); border-radius:12px;
+    padding:13px 14px; box-shadow:var(--shadow-sm); outline:none;
+    font-family:inherit;
+  }
+  .field:focus{border-color:var(--violet);}
+  .field.code{letter-spacing:8px; text-transform:uppercase; text-align:center; font-size:26px; font-weight:900;}
+  .btn{
+    display:block; width:100%; border:3px solid var(--ink); border-radius:16px;
+    padding:15px 18px; font-size:19px; font-weight:900; font-family:inherit;
+    color:var(--ink); background:var(--yellow); box-shadow:var(--shadow);
+    cursor:pointer; margin:14px 0 0; text-align:center;
+    transition:transform .06s ease, box-shadow .06s ease;
+  }
+  .btn:active{transform:translate(3px,4px); box-shadow:1px 1px 0 var(--ink);}
+  .btn.pink{background:var(--pink); color:var(--cream);}
+  .btn.lime{background:var(--lime);}
+  .btn.tang{background:var(--tangerine);}
+  .btn.ghost{background:transparent; color:var(--cream); border-style:dashed; border-color:var(--violet); box-shadow:none;}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+  .btn:disabled:active{transform:none; box-shadow:var(--shadow);}
+  .linkbtn{
+    background:none; border:none; color:var(--violet); font-weight:800; font-size:15px;
+    font-family:inherit; cursor:pointer; text-decoration:underline; padding:10px; display:block; margin:18px auto 0;
+  }
+  .sticker{
+    background:var(--paper); color:var(--ink);
+    border:3px solid var(--ink); border-radius:16px;
+    box-shadow:var(--shadow); padding:16px;
+    margin:14px 0;
+  }
+  .sticker.t1{transform:rotate(-1.1deg);}
+  .sticker.t2{transform:rotate(.9deg);}
+  .black{
+    background:var(--ink); color:var(--cream);
+    border:3px solid var(--pink); border-radius:16px;
+    box-shadow:5px 6px 0 rgba(255,61,139,.55); padding:18px;
+    font-size:19px; font-weight:900; line-height:1.4; margin:6px 0 16px;
+  }
+  .black .blank{color:var(--lime); letter-spacing:1px;}
+  .black .pickTag{display:inline-block; margin-top:10px; font-size:12px; font-weight:900; letter-spacing:1px; color:var(--yellow); text-transform:uppercase;}
+  .hand{display:flex; flex-direction:column; gap:2px;}
+  .card{
+    background:var(--paper); color:var(--ink);
+    border:3px solid var(--ink); border-radius:14px;
+    box-shadow:var(--shadow-sm); padding:14px;
+    font-size:16px; font-weight:800; line-height:1.35;
+    margin:6px 0; cursor:pointer; position:relative;
+    transition:transform .06s ease;
+  }
+  .card:active{transform:scale(.98);}
+  .card.sel{border-color:var(--pink); background:#ffe9f2; box-shadow:3px 4px 0 var(--pink);}
+  .card.sel .ord{
+    position:absolute; top:-10px; right:-6px; width:26px; height:26px; border-radius:50%;
+    background:var(--pink); color:var(--cream); border:3px solid var(--ink);
+    font-size:14px; font-weight:900; display:flex; align-items:center; justify-content:center;
+  }
+  .card.judge{cursor:pointer;}
+  .card .multi{border-top:2px dashed var(--violet); margin-top:9px; padding-top:9px;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 0;}
+  .chip{
+    background:var(--paper); color:var(--ink); border:3px solid var(--ink); border-radius:999px;
+    box-shadow:var(--shadow-sm); padding:7px 13px; font-weight:900; font-size:14px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .chip .crown{font-size:13px;}
+  .chip.gone{opacity:.4;}
+  .chip .zzz{font-size:11px; color:var(--violet);}
+  .chip.you{border-color:var(--lime); box-shadow:3px 4px 0 var(--lime);}
+  .optrow{display:flex; gap:8px; margin:4px 0 0;}
+  .opt{
+    flex:1; background:var(--paper); color:var(--ink); border:3px solid var(--ink);
+    border-radius:12px; padding:11px 6px; font-weight:900; font-size:15px; font-family:inherit;
+    box-shadow:var(--shadow-sm); cursor:pointer; text-align:center;
+  }
+  .opt.on{background:var(--lime); box-shadow:3px 4px 0 var(--violet);}
+  .emorow{display:flex; flex-wrap:wrap; gap:8px;}
+  .emo{
+    width:46px; height:46px; font-size:24px; background:var(--paper);
+    border:3px solid var(--ink); border-radius:12px; box-shadow:var(--shadow-sm);
+    cursor:pointer; display:flex; align-items:center; justify-content:center; font-family:inherit;
+  }
+  .emo.on{background:var(--lime); box-shadow:3px 4px 0 var(--violet);}
+  .codeBig{
+    font-size:52px; font-weight:900; letter-spacing:12px; text-align:center;
+    color:var(--yellow); text-shadow:3px 3px 0 var(--ink); margin:2px 0 0; padding-left:12px;
+  }
+  .codeHint{text-align:center; font-weight:700; font-size:14px; color:var(--cream); opacity:.85; margin:4px 0 0;}
+  .statusline{font-weight:800; font-size:14px; color:var(--lime); text-align:center; margin:10px 0 2px;}
+  .err{
+    background:#ffe1e9; color:#8e0f3c; border:3px solid #8e0f3c; border-radius:12px;
+    padding:11px 13px; font-weight:800; font-size:15px; margin:14px 0 0; box-shadow:3px 4px 0 #8e0f3c;
+  }
+  .notice{
+    background:var(--paper); color:var(--ink); border:3px solid var(--ink); border-radius:12px;
+    padding:11px 13px; font-weight:800; font-size:14px; margin:14px 0 0; box-shadow:var(--shadow-sm);
+  }
+  .winnerBox{
+    background:var(--lime); color:var(--ink); border:3px solid var(--ink); border-radius:18px;
+    box-shadow:var(--shadow); padding:18px; text-align:center; margin:12px 0;
+    animation:pop .35s ease;
+  }
+  .winnerBox .who{font-size:24px; font-weight:900;}
+  .winnerBox .played{font-size:16px; font-weight:800; margin-top:8px; line-height:1.4;}
+  @keyframes pop{0%{transform:scale(.85); opacity:0;} 100%{transform:scale(1); opacity:1;}}
+  .podium{list-style:none; margin:10px 0; padding:0;}
+  .podium li{
+    background:var(--paper); color:var(--ink); border:3px solid var(--ink); border-radius:14px;
+    box-shadow:var(--shadow-sm); padding:12px 14px; margin:9px 0; font-weight:900; font-size:17px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .podium li:first-child{background:var(--yellow); transform:rotate(-.8deg);}
+  .backrow{background:none; border:none; color:var(--violet); font-weight:900; font-size:15px; font-family:inherit; cursor:pointer; padding:4px 0 10px; display:inline-flex; align-items:center; gap:5px;}
+  .center{text-align:center;}
+  .qrwrap{display:flex; justify-content:center; margin:14px 0 2px;}
+  #qr{background:#fff; padding:10px; border:3px solid var(--ink); border-radius:12px; box-shadow:var(--shadow-sm); display:inline-block;}
+  #qr:empty{display:none;}
+  .howto p{margin:8px 0; font-weight:700; font-size:15px; line-height:1.5; color:var(--ink);}
+  .howto p b{color:var(--pink);}
+  .spin{
+    width:26px; height:26px; border-radius:50%; margin:0 auto;
+    border:4px solid var(--violet); border-top-color:var(--lime);
+    animation:whirl .8s linear infinite;
+  }
+  @keyframes whirl{to{transform:rotate(360deg);}}
+  .waitrow{display:flex; align-items:center; justify-content:center; gap:10px; margin:16px 0; font-weight:800; color:var(--cream);}
+  .hostTools{margin-top:22px; border-top:3px dashed var(--violet); padding-top:6px;}
+  .hostTools .linkbtn{display:inline-block; margin:6px 10px 0 0;}
+  .scorebar{display:flex; justify-content:space-between; align-items:center; margin:0 0 8px;}
+  .scorebar .rc{font-weight:900; font-size:13px; letter-spacing:2px; color:var(--yellow);}
+  .scorebar .rd{font-weight:900; font-size:13px; color:var(--lime);}
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+    .sticker.t1,.sticker.t2,.podium li:first-child{transform:none;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ---- library loader: PeerJS (required) + QRCode (optional) ---- */
+function loadScript(srcs, onDone){
+  var i = 0;
+  function tryNext(){
+    if (i >= srcs.length){ onDone(false); return; }
+    var s = document.createElement("script");
+    s.src = srcs[i++];
+    s.onload = function(){ onDone(true); };
+    s.onerror = function(){ s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  }
+  tryNext();
+}
+window.__peerReady = new Promise(function(resolve){
+  loadScript([
+    "https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js",
+    "https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js",
+    "https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"
+  ], resolve);
+});
+window.__qrReady = new Promise(function(resolve){
+  loadScript([
+    "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js",
+    "https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"
+  ], resolve);
+});
+</script>
+<script>
+"use strict";
+/* ============================ CONTENT ============================ */
+const PROMPTS = [
+  { text: "The secret ingredient in the cafeteria mystery meat is ___.", pick: 1 },
+  { text: "I got sent to the principal's office for ___.", pick: 1 },
+  { text: "My mom won't stop talking about ___ at dinner.", pick: 1 },
+  { text: "The grossest thing I've ever found in my backpack is ___.", pick: 1 },
+  { text: "School would be 10x better if we replaced math class with ___.", pick: 1 },
+  { text: "What's that smell coming from the locker room? It's ___.", pick: 1 },
+  { text: "I can't go to school today because of ___.", pick: 1 },
+  { text: "The reason my homework is late: ___.", pick: 1 },
+  { text: "My little brother's secret superpower is ___.", pick: 1 },
+  { text: "Don't open that door. Behind it is ___.", pick: 1 },
+  { text: "The newest ride at the amusement park is just ___.", pick: 1 },
+  { text: "I knew the sleepover went wrong when ___ showed up.", pick: 1 },
+  { text: "The world's worst birthday present is ___.", pick: 1 },
+  { text: "My dog ate ___ again.", pick: 1 },
+  { text: "The teacher caught me hiding ___ in my desk.", pick: 1 },
+  { text: "What woke up the whole campsite at 3am? ___.", pick: 1 },
+  { text: "The pizza place added a brand-new topping: ___.", pick: 1 },
+  { text: "I'm not crying, I just got ___ in my eye.", pick: 1 },
+  { text: "Grandma's house always smells like ___.", pick: 1 },
+  { text: "The talent show was completely ruined by ___.", pick: 1 },
+  { text: "What did I step in with my bare feet? ___.", pick: 1 },
+  { text: "The substitute teacher's one rule: absolutely no ___ in class.", pick: 1 },
+  { text: "My science project exploded and covered the room in ___.", pick: 1 },
+  { text: "The gas-station bathroom had ___ in it.", pick: 1 },
+  { text: "I'd do chores for a whole week in exchange for ___.", pick: 1 },
+  { text: "The monster under my bed is actually just ___.", pick: 1 },
+  { text: "Why is the cat staring at me like that? It wants ___.", pick: 1 },
+  { text: "The most embarrassing thing to yell in a quiet hallway is ___.", pick: 1 },
+  { text: "Our family road trip was 8 hours of ___.", pick: 1 },
+  { text: "The new flavor of toothpaste tastes exactly like ___.", pick: 1 },
+  { text: "I opened my lunchbox and out came ___.", pick: 1 },
+  { text: "What's been hiding in the back of the fridge? ___.", pick: 1 },
+  { text: "The class hamster escaped and left behind ___.", pick: 1 },
+  { text: "My big master plan for summer vacation is ___.", pick: 1 },
+  { text: "The worst thing to find floating in the pool is ___.", pick: 1 },
+  { text: "I sneezed so hard that ___ happened.", pick: 1 },
+  { text: "This year's school play is 'The Attack of the ___.'", pick: 1 },
+  { text: "Dad swears the weird noise in the car is just ___.", pick: 1 },
+  { text: "The secret to winning the burping contest is ___.", pick: 1 },
+  { text: "I traded my entire sandwich for ___.", pick: 1 },
+  { text: "The haunted house was scary until we saw ___.", pick: 1 },
+  { text: "My report card said I really need to improve at ___.", pick: 1 },
+  { text: "The recipe called for two whole cups of ___.", pick: 1 },
+  { text: "Nothing ruins a hayride faster than ___.", pick: 1 },
+  { text: "I'm pretty sure my socks are made entirely of ___.", pick: 1 },
+  { text: "The vending machine spat out ___ instead of chips.", pick: 1 },
+  { text: "Why is everyone sprinting away from the bouncy castle? ___.", pick: 1 },
+  { text: "The worst superhero of all time fights crime using ___.", pick: 1 },
+  { text: "I'm late because a giant ___ blocked the whole road.", pick: 1 },
+  { text: "The fortune cookie said my future holds ___.", pick: 1 },
+  { text: "First I ate ___, and then came ___.", pick: 2 },
+  { text: "My perfect monster has the head of ___ and the body of ___.", pick: 2 },
+  { text: "The recipe for total disaster: one part ___ and one part ___.", pick: 2 },
+  { text: "On my summer to-do list: ___, immediately followed by ___.", pick: 2 },
+];
+
+const ANSWERS = [
+  "a truly gigantic booger", "my brother's stinky feet", "a fart that echoed for ten seconds",
+  "the principal in his pajamas", "a volcano science experiment gone wrong", "a moldy sandwich from last month",
+  "an army of angry geese", "a single very wet sock", "a burp that smelled like onions",
+  "grandpa's spare dentures", "the world's stinkiest cheese", "a hairball the size of a baseball",
+  "leftover broccoli casserole", "a clown with a runny nose", "three pounds of glitter",
+  "a slug hiding in my shoe", "the smell of the boys' bathroom", "a chicken nugget shaped like Abraham Lincoln",
+  "my dad's terrible jokes", "an entire jar of pickle juice", "a sneeze full of surprises",
+  "the cafeteria mystery meat", "a toilet that won't stop running", "a goldfish that knows your secrets",
+  "a pile of laundry that moves on its own", "an emotional support llama", "spaghetti with absolutely no sauce",
+  "a deeply aggressive seagull", "mom's 'famous' meatloaf", "a spider doing push-ups",
+  "a banana peel left out in the sun", "the squeaky gym-shoe symphony", "a raccoon in a tiny trench coat",
+  "two-week-old gym shorts", "a sandwich with way too much mayo", "a fit of uncontrollable giggles",
+  "a goat that screams like a person", "the very last slice of pizza", "a mysterious sticky substance",
+  "homework that ate itself", "a parade of confused ducks", "a seriously clogged toilet",
+  "a burrito full of regret", "my weird uncle's magic tricks", "a cat that silently judges you",
+  "the world's loudest nose whistle", "a swarm of fruit flies", "a snowman melting indoors",
+  "milk that expired in March", "a dramatic fainting goat", "a dodgeball to the face",
+  "questionable gas-station sushi", "a hamster on a sugar rush", "a wedgie of legendary proportions",
+  "a tuba full of jelly", "the smell of victory (and armpits)", "a slightly possessed robot vacuum",
+  "soggy breakfast cereal", "an avalanche of stuffed animals", "a frog living in my backpack",
+  "the dreaded Monday morning", "a sock with a hole in the toe", "a pigeon that simply won't leave",
+  "lukewarm leftover nachos", "a sneaky little gremlin", "a bouncy castle full of bees",
+  "the substitute teacher's mood", "a melted ice-cream disaster", "an extremely itchy wool sweater",
+  "a surprise llama spit attack", "gum stuck in someone's hair", "a goose holding a grudge",
+  "pure last-day-of-school energy", "a mountain of dirty dishes", "a robot that only burps",
+  "a fistful of broken crayons", "a haunted juice box", "the sound of nails on a chalkboard",
+  "a turtle in a really big hurry", "a birthday cake to the face", "a dragon with terrible breath",
+  "an oddly dramatic hamster", "a puddle of unknown origin", "a cursed Halloween costume",
+  "a marshmallow the size of a beach ball", "an extremely loud yawn", "a squirrel clearly planning something",
+  "a sandwich left in a locker since September", "the world's worst haircut", "a balloon that refuses to pop",
+  "a parade float made of mashed potatoes", "a very sticky doorknob", "a chorus of squeaky sneakers",
+  "a leaf pile hiding a raccoon", "an unexpected glitter explosion", "a smelly old gym-sock puppet",
+  "a tiny dog with a huge attitude", "a fountain of root beer", "a deeply confused substitute",
+  "a llama wearing sunglasses", "the science-fair volcano", "a snail race that lasted all day",
+  "an enormous mystery hairball", "a trampoline incident", "a suspicious green smoothie",
+  "a sneeze heard around the world", "a faint into a pile of pillows", "a sandwich nobody ordered",
+  "the funky smell of brand-new markers", "a chicken that thinks it's a dog",
+  "a backpack that weighs 500 pounds", "a surprise pop quiz", "a melted gummy-bear avalanche",
+  "a truly enormous belch", "an octopus with too many opinions", "a haunted pair of gym shorts",
+  "a cat knocking everything off the table", "a possessed bouncy ball", "a goose wearing roller skates",
+  "a sock puppet with trust issues", "a slightly evil snowman",
+];
+
+const EMOJIS = ["🦆","🦖","🐙","🦝","🐸","🦩","🐢","🦔","🐨","🦜"];
+
+/* ============================ UTILS ============================ */
+const HAND = 7;
+const MIN_PLAYERS = 3;
+const MAX_PLAYERS = 10;
+const PING_MS = 4000;
+const STALE_MS = 13000;
+const RESULT_AUTO_MS = 9000;
+const PREFIX = "coc-v1-";
+
+const $app = document.getElementById("app");
+const esc = (s) => String(s == null ? "" : s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const shuffle = (a) => { const x = a.slice(); for (let i = x.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [x[i], x[j]] = [x[j], x[i]]; } return x; };
+const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+const makeCode = () => Array.from({length:4}, () => CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)]).join("");
+
+function saveLS(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+function loadLS(k){ try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch(e){ return null; } }
+function dropLS(k){ try { localStorage.removeItem(k); } catch(e){} }
+
+/* my stable identity across refreshes */
+let MYPID = loadLS("coc:pid");
+if (!MYPID){ MYPID = uid(); saveLS("coc:pid", MYPID); }
+
+/* screen wake lock (supported iOS 16.4+/Android Chrome; fails silently) */
+let wakeLock = null;
+async function grabWakeLock(){
+  try {
+    if ("wakeLock" in navigator){ wakeLock = await navigator.wakeLock.request("screen"); }
+  } catch(e){}
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && C.mode === "room") grabWakeLock();
+});
+
+/* ============================ CLIENT STATE ============================ */
+const C = {
+  mode: "home",          // home | hostSetup | join | room
+  pub: null,             // latest public state (host renders its own via pubFor)
+  err: "",
+  conn: "ok",            // ok | connecting | reconnecting | lost
+  sel: [],               // selected card indices (hand order)
+  picked: false,         // czar picked this round (local guard)
+  name: loadLS("coc:name") || "",
+  emoji: loadLS("coc:emoji") || EMOJIS[0],
+  target: 5,
+  allowPick2: true,
+  codeInput: "",
+  isHost: false,
+  hostToolsOpen: false
+};
+
+/* ============================ NETWORK ============================ */
+let peer = null;         // my Peer instance
+let hostConns = new Map();   // host: pid -> conn
+let lastSeen = new Map();    // host: pid -> ts
+let joinConn = null;         // joiner: conn to host
+let sweepTimer = null, pingTimer = null, redialTimer = null, autoNextTimer = null;
+let redialTries = 0;
+
+function killNet(){
+  [sweepTimer, pingTimer, redialTimer, autoNextTimer].forEach(t => { if (t) clearInterval(t), clearTimeout(t); });
+  sweepTimer = pingTimer = redialTimer = autoNextTimer = null;
+  if (joinConn){ try { joinConn.close(); } catch(e){} joinConn = null; }
+  hostConns.forEach(c => { try { c.close(); } catch(e){} });
+  hostConns.clear(); lastSeen.clear();
+  if (peer){ try { peer.destroy(); } catch(e){} peer = null; }
+  redialTries = 0;
+}
+
+function newPeer(id){
+  const opts = { debug: 1 };
+  return id ? new Peer(id, opts) : new Peer(opts);
+}
+
+/* ---------------- HOST SIDE ---------------- */
+let S = null;   // authoritative state (host only)
+let deck = [], discard = [], promptDeck = [];
+
+function persistHost(){
+  if (!S) return;
+  saveLS("coc:host", { code: S.code, S: S, deck: deck, discard: discard, promptDeck: promptDeck });
+  saveLS("coc:session", { role: "host", code: S.code, name: C.name, emoji: C.emoji });
+}
+
+function startHost(resume){
+  killNet();
+  C.err = ""; C.conn = "connecting"; C.isHost = true;
+  render();
+  window.__peerReady.then((ok) => {
+    if (!ok || typeof Peer === "undefined"){ C.err = "Couldn't load the connection library. Check your internet and reload."; C.conn="lost"; C.mode="home"; render(); return; }
+    let tries = 0;
+    const attempt = () => {
+      const code = resume ? resume.code : makeCode();
+      peer = newPeer(PREFIX + code);
+      peer.on("open", () => {
+        if (resume){
+          S = resume.S; deck = resume.deck || []; discard = resume.discard || []; promptDeck = resume.promptDeck || [];
+          S.players.forEach(p => { if (p.pid !== MYPID) p.connected = false; });
+        } else {
+          S = freshState(code);
+          buildDecks();
+        }
+        C.mode = "room"; C.conn = "ok"; C.sel = []; C.picked = false;
+        persistHost();
+        grabWakeLock();
+        sweepTimer = setInterval(hostSweep, PING_MS);
+        render();
+      });
+      peer.on("connection", wireGuest);
+      peer.on("error", (e) => {
+        if (e && e.type === "unavailable-id" && !resume && tries < 6){ tries++; try{peer.destroy();}catch(_){} attempt(); return; }
+        if (e && e.type === "unavailable-id" && resume){
+          C.err = "That game is still running somewhere else. Close the old tab first, or start a fresh game.";
+        } else {
+          C.err = "Connection trouble: " + (e && e.type ? e.type : "unknown") + ". Reload and try again.";
+        }
+        C.conn = "lost"; C.mode = "home"; render();
+      });
+      peer.on("disconnected", () => { try { peer.reconnect(); } catch(_){} });
+    };
+    attempt();
+  });
+}
+
+function wireGuest(conn){
+  conn.on("data", (m) => handleGuestMsg(conn, m));
+  conn.on("close", () => {
+    for (const [pid, c] of hostConns){ if (c === conn){ hostConns.delete(pid); markGone(pid); } }
+  });
+  conn.on("error", () => {});
+}
+
+function handleGuestMsg(conn, m){
+  if (!m || !S) return;
+  if (m.t === "hello"){
+    let p = S.players.find(x => x.pid === m.pid);
+    if (!p){
+      if (S.players.length >= MAX_PLAYERS){ try { conn.send({t:"deny", reason:"That game is full (10 players max)."}); } catch(e){} return; }
+      let nm = String(m.name || "Player").slice(0, 16).trim() || "Player";
+      const dupes = S.players.filter(x => x.name === nm || x.name.replace(/ \d+$/,"") === nm).length;
+      if (dupes) nm = nm + " " + (dupes + 1);
+      p = { pid: m.pid, name: nm, emoji: m.emoji || EMOJIS[S.players.length % EMOJIS.length], score: 0, connected: true, hand: [] };
+      S.players.push(p);
+      if (S.phase !== "lobby" && S.phase !== "over") refill(p);
+    } else {
+      p.connected = true;
+      if (m.name) { /* keep original name to avoid mid-game renames */ }
+    }
+    const old = hostConns.get(m.pid);
+    if (old && old !== conn){ try { old.close(); } catch(e){} }
+    hostConns.set(m.pid, conn);
+    lastSeen.set(m.pid, Date.now());
+    broadcast();
+    return;
+  }
+  if (m.t === "ping"){ lastSeen.set(m.pid, Date.now()); const p = S.players.find(x=>x.pid===m.pid); if (p && !p.connected){ p.connected = true; broadcast(); } return; }
+  if (m.t === "leave"){ const p = S.players.find(x=>x.pid===m.pid); if (p){ p.connected = false; if (S.phase==="lobby"){ S.players = S.players.filter(x=>x.pid!==m.pid); hostConns.delete(m.pid);} czarGuard(m.pid); broadcast(); } return; }
+  if (m.t === "submit"){ lastSeen.set(m.pid, Date.now()); onSubmit(m.pid, m.round, m.cards); return; }
+  if (m.t === "czarPick"){ lastSeen.set(m.pid, Date.now()); onPick(m.pid, m.round, m.sid); return; }
+}
+
+function markGone(pid){
+  if (!S) return;
+  const p = S.players.find(x => x.pid === pid);
+  if (p && p.connected){ p.connected = false; czarGuard(pid); broadcast(); }
+}
+
+function hostSweep(){
+  if (!S) return;
+  const now = Date.now();
+  let changed = false;
+  S.players.forEach(p => {
+    if (p.pid === MYPID) return;
+    const seen = lastSeen.get(p.pid) || 0;
+    if (p.connected && now - seen > STALE_MS){ p.connected = false; czarGuard(p.pid); changed = true; }
+  });
+  if (changed) broadcast();
+}
+
+function czarGuard(gonePid){
+  if (!S || S.phase === "lobby" || S.phase === "over") return;
+  if (S.czarPid !== gonePid) {
+    /* if everyone left has submitted once czar-less check */
+    if (S.phase === "submitting") maybeJudge();
+    return;
+  }
+  const alive = S.players.filter(p => p.connected);
+  if (!alive.length) return;
+  const next = nextCzarFrom(S.czarPid);
+  S.czarPid = next ? next.pid : alive[0].pid;
+  delete S.submissions[S.czarPid];
+  if (S.phase === "submitting") maybeJudge();
+}
+
+function pubFor(pid){
+  const me = S.players.find(p => p.pid === pid);
+  return {
+    code: S.code, phase: S.phase, round: S.round, settings: S.settings,
+    hostPid: S.hostPid, czarPid: S.czarPid, black: S.black,
+    players: S.players.map(p => ({ pid: p.pid, name: p.name, emoji: p.emoji, score: p.score, connected: p.connected, submitted: !!S.submissions[p.pid] })),
+    revealed: S.revealed, lastWinner: S.lastWinner, winnerPid: S.winnerPid, finalRanking: S.finalRanking,
+    youPid: pid, hand: me ? me.hand.slice() : []
+  };
+}
+
+function broadcast(){
+  if (!S) return;
+  for (const [pid, conn] of hostConns){
+    if (conn && conn.open){ try { conn.send({ t: "state", pub: pubFor(pid) }); } catch(e){} }
+  }
+  C.pub = pubFor(MYPID);
+  persistHost();
+  render();
+}
+
+/* ---------------- GAME LOGIC (host) ---------------- */
+function freshState(code){
+  return {
+    code: code, hostPid: MYPID, phase: "lobby", round: 0,
+    settings: { target: C.target, allowPick2: C.allowPick2 },
+    players: [{ pid: MYPID, name: (C.name || "Host").slice(0,16), emoji: C.emoji, score: 0, connected: true, hand: [] }],
+    czarPid: null, black: null,
+    submissions: {}, revealed: [], revealMap: {},
+    lastWinner: null, winnerPid: null, finalRanking: null
+  };
+}
+
+function buildDecks(){
+  deck = shuffle(ANSWERS);
+  discard = [];
+  promptDeck = shuffle(PROMPTS.filter(p => S.settings.allowPick2 ? true : (p.pick || 1) === 1));
+}
+
+function draw(){
+  if (!deck.length){
+    const inHands = new Set(); S.players.forEach(p => p.hand.forEach(c => inHands.add(c)));
+    deck = shuffle(discard.length ? discard : ANSWERS.filter(c => !inHands.has(c)));
+    discard = [];
+    if (!deck.length) deck = shuffle(ANSWERS);
+  }
+  return deck.pop();
+}
+
+function refill(p){ while (p.hand.length < HAND) p.hand.push(draw()); }
+
+function nextPrompt(){
+  if (!promptDeck.length) promptDeck = shuffle(PROMPTS.filter(p => S.settings.allowPick2 ? true : (p.pick || 1) === 1));
+  return promptDeck.pop();
+}
+
+function nextCzarFrom(pid){
+  const idx = S.players.findIndex(p => p.pid === pid);
+  const n = S.players.length;
+  for (let step = 1; step <= n; step++){
+    const cand = S.players[(idx + step) % n];
+    if (cand.connected) return cand;
+  }
+  return null;
+}
+
+function startGame(){
+  if (!S) return;
+  const conn = S.players.filter(p => p.connected);
+  if (conn.length < MIN_PLAYERS) return;
+  S.settings.target = C.target;
+  S.settings.allowPick2 = C.allowPick2;
+  buildDecks();
+  S.players.forEach(p => { p.score = 0; p.hand = []; if (p.connected) refill(p); });
+  S.round = 1;
+  S.czarPid = conn[0].pid;
+  S.black = nextPrompt();
+  S.submissions = {}; S.revealed = []; S.revealMap = {};
+  S.lastWinner = null; S.winnerPid = null; S.finalRanking = null;
+  S.phase = "submitting";
+  C.sel = []; C.picked = false;
+  broadcast();
+}
+
+function onSubmit(pid, round, cards){
+  if (!S || S.phase !== "submitting" || round !== S.round) return;
+  if (pid === S.czarPid || S.submissions[pid]) return;
+  const p = S.players.find(x => x.pid === pid);
+  if (!p || !Array.isArray(cards)) return;
+  const need = (S.black && S.black.pick) || 1;
+  if (cards.length !== need) return;
+  for (const c of cards){ if (!p.hand.includes(c)) return; }
+  S.submissions[pid] = cards.slice();
+  cards.forEach(c => { p.hand.splice(p.hand.indexOf(c), 1); });
+  maybeJudge();
+  broadcast();
+}
+
+function maybeJudge(){
+  if (!S || S.phase !== "submitting") return;
+  const needers = S.players.filter(p => p.connected && p.pid !== S.czarPid);
+  if (needers.length >= 1 && needers.every(p => S.submissions[p.pid])) startJudging();
+}
+
+function startJudging(){
+  const entries = Object.entries(S.submissions);   // includes any who submitted then dropped
+  if (!entries.length){ skipRound(); return; }
+  const order = shuffle(entries);
+  S.revealed = order.map(([pid, cards], i) => ({ sid: i, cards: cards }));
+  S.revealMap = {}; order.forEach(([pid], i) => { S.revealMap[i] = pid; });
+  S.phase = "judging";
+}
+
+function onPick(pid, round, sid){
+  if (!S || S.phase !== "judging" || round !== S.round) return;
+  if (pid !== S.czarPid) return;
+  const winPid = S.revealMap[sid];
+  if (winPid == null) return;
+  const w = S.players.find(x => x.pid === winPid);
+  Object.values(S.submissions).forEach(cards => discard.push(...cards));
+  if (w){
+    w.score += 1;
+    S.lastWinner = { name: w.name, emoji: w.emoji, cards: S.submissions[winPid].slice(), promptText: S.black.text };
+    S.winnerPid = winPid;
+    if (w.score >= S.settings.target){ finishGame(); broadcast(); return; }
+  }
+  S.phase = "result";
+  broadcast();
+  if (autoNextTimer) clearTimeout(autoNextTimer);
+  autoNextTimer = setTimeout(() => { if (S && S.phase === "result") nextRound(); }, RESULT_AUTO_MS);
+}
+
+function nextRound(){
+  if (!S) return;
+  if (autoNextTimer){ clearTimeout(autoNextTimer); autoNextTimer = null; }
+  S.round += 1;
+  S.players.forEach(p => { if (p.connected) refill(p); });
+  const nc = nextCzarFrom(S.czarPid);
+  S.czarPid = nc ? nc.pid : (S.players.find(p=>p.connected) || S.players[0]).pid;
+  S.black = nextPrompt();
+  S.submissions = {}; S.revealed = []; S.revealMap = {};
+  S.winnerPid = null;
+  S.phase = "submitting";
+  C.sel = []; C.picked = false;
+  broadcast();
+}
+
+function skipRound(){
+  if (!S || (S.phase !== "submitting" && S.phase !== "judging")) return;
+  Object.values(S.submissions).forEach(cards => discard.push(...cards));
+  S.lastWinner = null;
+  nextRound();
+}
+
+function finishGame(){
+  S.finalRanking = S.players.slice().sort((a,b) => b.score - a.score)
+    .map(p => ({ name: p.name, emoji: p.emoji, score: p.score, pid: p.pid }));
+  S.phase = "over";
+}
+
+function endGameNow(){ if (!S) return; finishGame(); broadcast(); }
+
+function playAgain(){
+  if (!S) return;
+  S.phase = "lobby"; S.round = 0;
+  S.players.forEach(p => { p.score = 0; p.hand = []; });
+  S.black = null; S.czarPid = null;
+  S.submissions = {}; S.revealed = []; S.revealMap = {};
+  S.lastWinner = null; S.winnerPid = null; S.finalRanking = null;
+  C.sel = []; C.picked = false;
+  broadcast();
+}
+
+/* ---------------- JOINER SIDE ---------------- */
+function startJoin(code){
+  killNet();
+  C.err = ""; C.conn = "connecting"; C.isHost = false;
+  render();
+  window.__peerReady.then((ok) => {
+    if (!ok || typeof Peer === "undefined"){ C.err = "Couldn't load the connection library. Check your internet and reload."; C.conn="lost"; C.mode="join"; render(); return; }
+    peer = newPeer();
+    peer.on("open", () => dialHost(code));
+    peer.on("error", (e) => {
+      if (e && e.type === "peer-unavailable"){
+        if (C.mode === "room" && C.pub){ scheduleRedial(code); return; }
+        C.err = "Couldn't find that game. Double-check the code with the host — and make sure their screen is on.";
+        C.conn = "lost"; C.mode = "join"; render();
+      } else if (e && (e.type === "network" || e.type === "disconnected")){
+        try { peer.reconnect(); } catch(_){}
+      }
+    });
+    peer.on("disconnected", () => { try { peer.reconnect(); } catch(_){} });
+  });
+}
+
+function dialHost(code){
+  const conn = peer.connect(PREFIX + code, { reliable: true });
+  let opened = false;
+  conn.on("open", () => {
+    opened = true; redialTries = 0;
+    joinConn = conn;
+    C.conn = "ok";
+    conn.send({ t: "hello", pid: MYPID, name: C.name, emoji: C.emoji });
+    saveLS("coc:session", { role: "guest", code: code, name: C.name, emoji: C.emoji });
+    if (pingTimer) clearInterval(pingTimer);
+    pingTimer = setInterval(() => { if (joinConn && joinConn.open) { try { joinConn.send({ t: "ping", pid: MYPID }); } catch(e){} } }, PING_MS);
+    grabWakeLock();
+    render();
+  });
+  conn.on("data", (m) => {
+    if (!m) return;
+    if (m.t === "state"){
+      const prev = C.pub;
+      C.pub = m.pub; C.mode = "room"; C.conn = "ok";
+      if (!prev || prev.round !== m.pub.round || prev.phase !== m.pub.phase){
+        if (m.pub.phase === "submitting"){ C.sel = []; C.picked = false; }
+        if (m.pub.phase === "judging" && (!prev || prev.phase !== "judging")){ C.picked = false; }
+      }
+      render();
+    }
+    if (m.t === "deny"){ C.err = m.reason || "Couldn't join that game."; C.conn = "lost"; C.mode = "join"; killNet(); render(); }
+  });
+  conn.on("close", () => { if (opened) scheduleRedial(code); });
+  conn.on("error", () => {});
+  setTimeout(() => { if (!opened && C.conn === "connecting" && C.mode !== "room"){ /* peer-unavailable usually fires; this is a safety net */ } }, 9000);
+}
+
+function scheduleRedial(code){
+  if (C.mode !== "room" && C.mode !== "join") return;
+  C.conn = "reconnecting"; render();
+  if (redialTimer) clearTimeout(redialTimer);
+  redialTries += 1;
+  if (redialTries > 14){
+    C.conn = "lost";
+    C.err = "Lost the game. Ask the host if their screen is still on, then tap Rejoin.";
+    C.mode = "join"; render(); return;
+  }
+  redialTimer = setTimeout(() => { if (peer && !peer.destroyed) dialHost(code); }, Math.min(1500 * redialTries, 6000));
+}
+
+function leaveGame(){
+  if (!C.isHost && joinConn && joinConn.open){ try { joinConn.send({ t: "leave", pid: MYPID }); } catch(e){} }
+  if (C.isHost){ dropLS("coc:host"); }
+  dropLS("coc:session");
+  killNet();
+  S = null; C.pub = null; C.mode = "home"; C.err = ""; C.conn = "ok"; C.sel = []; C.picked = false; C.isHost = false;
+  render();
+}
+
+/* ============================ RENDER ============================ */
+function render(){
+  let html = "";
+  if (C.mode === "home") html = vHome();
+  else if (C.mode === "hostSetup") html = vHostSetup();
+  else if (C.mode === "join") html = vJoin();
+  else if (C.mode === "room") html = vRoom();
+  $app.innerHTML = html;
+  if (C.mode === "room" && C.pub && C.pub.phase === "lobby" && C.isHost) drawQR();
+}
+
+function logo(){
+  return '<h1 class="logo">CARDS <span class="chaos">of CHAOS</span></h1><p class="tag">The fill-in-the-blank party game of questionable genius</p>';
+}
+
+function errBox(){ return C.err ? '<div class="err">' + esc(C.err) + '</div>' : ''; }
+
+function vHome(){
+  const sess = loadLS("coc:session");
+  const hostBk = loadLS("coc:host");
+  let resume = "";
+  if (sess && sess.role === "host" && hostBk && hostBk.S && hostBk.S.phase !== "over"){
+    resume = '<button class="btn ghost" data-a="resumeHost">Resume hosting ' + esc(sess.code) + '</button>';
+  } else if (sess && sess.role === "guest"){
+    resume = '<button class="btn ghost" data-a="resumeGuest">Rejoin game ' + esc(sess.code) + '</button>';
+  }
+  return logo() +
+    '<button class="btn pink" data-a="toHost">Host a game</button>' +
+    '<button class="btn tang" data-a="toJoin">Join with a code</button>' +
+    resume +
+    errBox() +
+    '<div class="sticker t1 howto" style="margin-top:26px">' +
+      '<p style="font-size:17px; margin-top:0"><b>How it works</b></p>' +
+      '<p>1. One player taps <b>Host</b> and gets a 4-letter code.</p>' +
+      '<p>2. Everyone else opens this same page and taps <b>Join</b> — or scans the host\u2019s QR code.</p>' +
+      '<p>3. Each round, one player is the <b>Judge</b> 👑. Everyone else plays their funniest card to fill in the blank.</p>' +
+      '<p>4. The Judge picks a winner. First to the target score takes the crown!</p>' +
+      '<p>Works on iPhones, iPads, and Androids — any mix. 3\u201310 players. The host\u2019s screen has to stay on; it runs the game.</p>' +
+    '</div>';
+}
+
+function emojiRow(){
+  return '<div class="emorow">' + EMOJIS.map(e =>
+    '<button class="emo' + (C.emoji === e ? ' on' : '') + '" data-a="emoji" data-v="' + e + '">' + e + '</button>'
+  ).join('') + '</div>';
+}
+
+function vHostSetup(){
+  return '<button class="backrow" data-a="home">\u2190 Back</button>' +
+    '<h2>Host a game</h2>' +
+    '<label class="lbl">Your name</label>' +
+    '<input class="field" id="f-name" maxlength="16" placeholder="e.g. Captain Stinky" value="' + esc(C.name) + '" />' +
+    '<label class="lbl">Your animal</label>' + emojiRow() +
+    '<label class="lbl">Play to</label>' +
+    '<div class="optrow">' + [3,5,7].map(n =>
+      '<button class="opt' + (C.target === n ? ' on' : '') + '" data-a="target" data-v="' + n + '">' + n + ' points</button>'
+    ).join('') + '</div>' +
+    '<label class="lbl">Double-blank cards (pick 2)</label>' +
+    '<div class="optrow">' +
+      '<button class="opt' + (C.allowPick2 ? ' on' : '') + '" data-a="pick2" data-v="1">Include</button>' +
+      '<button class="opt' + (!C.allowPick2 ? ' on' : '') + '" data-a="pick2" data-v="0">Leave out</button>' +
+    '</div>' +
+    errBox() +
+    '<button class="btn pink" data-a="createRoom" style="margin-top:24px">Start hosting</button>' +
+    '<p class="codeHint" style="margin-top:14px">Your phone becomes the game table — keep this screen on.</p>';
+}
+
+function vJoin(){
+  return '<button class="backrow" data-a="home">\u2190 Back</button>' +
+    '<h2>Join a game</h2>' +
+    '<label class="lbl">Room code</label>' +
+    '<input class="field code" id="f-code" maxlength="4" autocapitalize="characters" autocomplete="off" placeholder="ABCD" value="' + esc(C.codeInput) + '" />' +
+    '<label class="lbl">Your name</label>' +
+    '<input class="field" id="f-name" maxlength="16" placeholder="e.g. Sir Sniffs-a-Lot" value="' + esc(C.name) + '" />' +
+    '<label class="lbl">Your animal</label>' + emojiRow() +
+    errBox() +
+    '<button class="btn tang" data-a="joinRoom" style="margin-top:24px">Join the chaos</button>';
+}
+
+/* ---------- room ---------- */
+function vRoom(){
+  const p = C.pub;
+  if (!p){
+    return '<div class="waitrow" style="margin-top:80px"><div class="spin"></div> Connecting\u2026</div>' +
+      '<p class="codeHint">Finding the host. If this hangs, check the code and the host\u2019s screen.</p>' +
+      '<button class="linkbtn" data-a="leave">Cancel</button>';
+  }
+  const connBanner = C.conn === "reconnecting" ? '<div class="notice">📡 Reconnecting to the host\u2026 hold tight.</div>' : '';
+  let body = "";
+  if (p.phase === "lobby") body = vLobby(p);
+  else if (p.phase === "submitting") body = vSubmitting(p);
+  else if (p.phase === "judging") body = vJudging(p);
+  else if (p.phase === "result") body = vResult(p);
+  else if (p.phase === "over") body = vOver(p);
+  return connBanner + body;
+}
+
+function chipRow(p){
+  return '<div class="chips">' + p.players.map(pl => {
+    const you = pl.pid === p.youPid ? ' you' : '';
+    const gone = pl.connected ? '' : ' gone';
+    const crown = pl.pid === p.czarPid && p.phase !== "lobby" ? '<span class="crown">👑</span>' : '';
+    const check = p.phase === "submitting" && pl.submitted ? ' ✅' : '';
+    const zzz = pl.connected ? '' : ' <span class="zzz">zzz</span>';
+    return '<span class="chip' + you + gone + '">' + crown + pl.emoji + ' ' + esc(pl.name) +
+      (p.phase !== "lobby" ? ' \u00b7 ' + pl.score : '') + check + zzz + '</span>';
+  }).join('') + '</div>';
+}
+
+function scorebar(p){
+  return '<div class="scorebar"><span class="rc">ROOM ' + esc(p.code) + '</span><span class="rd">Round ' + p.round + ' \u00b7 First to ' + p.settings.target + '</span></div>';
+}
+
+function hostTools(p, opts){
+  if (p.youPid !== p.hostPid) return '';
+  const inRound = p.phase === "submitting" || p.phase === "judging";
+  return '<div class="hostTools">' +
+    (opts && opts.next ? '' : '') +
+    (inRound ? '<button class="linkbtn" data-a="skipRound">Skip this round</button>' : '') +
+    '<button class="linkbtn" data-a="endGame">End game</button>' +
+  '</div>';
+}
+
+function vLobby(p){
+  const conn = p.players.filter(x => x.connected).length;
+  const isHost = p.youPid === p.hostPid;
+  const shareUrl = (location.protocol.startsWith("http") ? location.origin + location.pathname : "") ;
+  return logo() +
+    '<div class="sticker t2 center">' +
+      '<div style="font-weight:900; font-size:13px; letter-spacing:2px; color:var(--violet)">ROOM CODE</div>' +
+      '<div class="codeBig">' + esc(p.code) + '</div>' +
+      (isHost && shareUrl ? '<div class="qrwrap"><div id="qr"></div></div><div style="font-weight:700; font-size:13px; color:var(--ink); opacity:.75">Scan to join, or open this page and enter the code</div>' : '') +
+    '</div>' +
+    '<p class="statusline">' + conn + ' player' + (conn===1?'':'s') + ' here' + (conn < MIN_PLAYERS ? ' \u00b7 need ' + MIN_PLAYERS + ' to start' : ' \u00b7 ready!') + '</p>' +
+    chipRow(p) +
+    (isHost
+      ? '<button class="btn lime" data-a="startGame" ' + (conn < MIN_PLAYERS ? 'disabled' : '') + ' style="margin-top:22px">Start the game</button>' +
+        '<p class="codeHint">Playing to ' + p.settings.target + ' points \u00b7 keep this screen on</p>'
+      : '<div class="waitrow"><div class="spin"></div> Waiting for the host to start\u2026</div>') +
+    '<button class="linkbtn" data-a="leave">Leave game</button>';
+}
+
+function blackCard(p){
+  const t = esc(p.black.text).replace(/___/g, '<span class="blank">______</span>');
+  const pick = (p.black.pick || 1);
+  return '<div class="black">' + t + (pick > 1 ? '<br/><span class="pickTag">Pick ' + pick + ' \u2014 order matters!</span>' : '') + '</div>';
+}
+
+function vSubmitting(p){
+  const isCzar = p.youPid === p.czarPid;
+  const me = p.players.find(x => x.pid === p.youPid);
+  const submitted = me && me.submitted;
+  const need = (p.black.pick || 1);
+  const waitingOn = p.players.filter(x => x.connected && x.pid !== p.czarPid && !x.submitted).length;
+  let mid;
+  if (isCzar){
+    mid = '<div class="waitrow"><div class="spin"></div> You\u2019re the Judge 👑 \u2014 waiting for ' + waitingOn + ' card' + (waitingOn===1?'':'s') + '\u2026</div>';
+  } else if (submitted){
+    mid = '<div class="waitrow"><div class="spin"></div> Card' + (need>1?'s':'') + ' in! Waiting on ' + waitingOn + ' more\u2026</div>';
+  } else {
+    const selBtns = C.sel.length === need
+      ? '<button class="btn pink" data-a="submitCards">Play ' + (need > 1 ? 'these cards' : 'this card') + '</button>'
+      : '<button class="btn pink" disabled>Pick ' + (need - C.sel.length) + ' more</button>';
+    mid = '<div class="hand">' + p.hand.map((c, i) => {
+      const si = C.sel.indexOf(i);
+      return '<div class="card' + (si >= 0 ? ' sel' : '') + '" data-a="selCard" data-v="' + i + '">' + esc(c) +
+        (si >= 0 && need > 1 ? '<span class="ord">' + (si + 1) + '</span>' : '') + '</div>';
+    }).join('') + '</div>' + selBtns;
+  }
+  return scorebar(p) + blackCard(p) + mid + chipRow(p) + hostTools(p);
+}
+
+function vJudging(p){
+  const isCzar = p.youPid === p.czarPid;
+  const czar = p.players.find(x => x.pid === p.czarPid);
+  const head = isCzar
+    ? '<p class="statusline">You\u2019re the Judge 👑 \u2014 tap the funniest!</p>'
+    : '<p class="statusline">' + esc(czar ? czar.name : "The Judge") + ' 👑 is judging\u2026</p>';
+  const cards = '<div class="hand">' + p.revealed.map(r => {
+    const inner = r.cards.map((c, i) => i === 0 ? esc(c) : '<div class="multi">' + esc(c) + '</div>').join('');
+    return '<div class="card' + (isCzar && !C.picked ? ' judge' : '') + '"' + (isCzar && !C.picked ? ' data-a="pickCard" data-v="' + r.sid + '"' : '') + '>' + inner + '</div>';
+  }).join('') + '</div>';
+  return scorebar(p) + blackCard(p) + head + cards + chipRow(p) + hostTools(p);
+}
+
+function vResult(p){
+  const w = p.lastWinner;
+  const isHost = p.youPid === p.hostPid;
+  const won = w ? '<div class="winnerBox"><div class="who">' + w.emoji + ' ' + esc(w.name) + ' wins the round!</div>' +
+    '<div class="played">' + esc(w.promptText).replace(/___/g, '\u2026') + '<br/><b>' + w.cards.map(esc).join(' + ') + '</b></div></div>'
+    : '<div class="notice">No cards came in \u2014 skipping ahead.</div>';
+  return scorebar(p) + won + chipRow(p) +
+    (isHost ? '<button class="btn lime" data-a="nextRound" style="margin-top:18px">Next round</button>' : '<div class="waitrow"><div class="spin"></div> Next round starting\u2026</div>') +
+    hostTools(p);
+}
+
+function vOver(p){
+  const isHost = p.youPid === p.hostPid;
+  const list = (p.finalRanking || []).map((r, i) =>
+    '<li><span>' + (i === 0 ? '🏆 ' : (i + 1) + '. ') + r.emoji + ' ' + esc(r.name) + '</span><span>' + r.score + ' pts</span></li>'
+  ).join('');
+  const champ = p.finalRanking && p.finalRanking[0];
+  return logo() +
+    (champ ? '<div class="winnerBox"><div class="who">' + champ.emoji + ' ' + esc(champ.name) + ' takes the crown! 👑</div></div>' : '') +
+    '<ol class="podium">' + list + '</ol>' +
+    (isHost ? '<button class="btn pink" data-a="playAgain">Play again</button>' : '<p class="statusline">Ask the host to run it back!</p>') +
+    '<button class="linkbtn" data-a="leave">Leave game</button>';
+}
+
+function drawQR(){
+  window.__qrReady.then((ok) => {
+    const el = document.getElementById("qr");
+    if (!ok || !el || typeof QRCode === "undefined") return;
+    if (!location.protocol.startsWith("http")) return;
+    el.innerHTML = "";
+    const url = location.origin + location.pathname + "?code=" + C.pub.code;
+    new QRCode(el, { text: url, width: 128, height: 128, correctLevel: QRCode.CorrectLevel.M });
+  });
+}
+
+/* ============================ EVENTS & BOOT ============================ */
+function grabInputs(){
+  const n = document.getElementById("f-name");
+  if (n){ C.name = n.value.slice(0, 16); saveLS("coc:name", C.name); }
+  const c = document.getElementById("f-code");
+  if (c){ C.codeInput = c.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 4); }
+}
+
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-a]");
+  if (!t) return;
+  const a = t.getAttribute("data-a");
+  const v = t.getAttribute("data-v");
+  grabInputs();
+
+  if (a === "home"){ C.mode = "home"; C.err = ""; render(); }
+  else if (a === "toHost"){ C.mode = "hostSetup"; C.err = ""; render(); }
+  else if (a === "toJoin"){ C.mode = "join"; C.err = ""; render(); }
+  else if (a === "emoji"){ C.emoji = v; saveLS("coc:emoji", C.emoji); render(); restoreFocusFix(); }
+  else if (a === "target"){ C.target = parseInt(v, 10); render(); restoreFocusFix(); }
+  else if (a === "pick2"){ C.allowPick2 = v === "1"; render(); restoreFocusFix(); }
+  else if (a === "createRoom"){
+    if (!C.name.trim()){ C.err = "Pick a name first!"; render(); return; }
+    C.err = ""; startHost(null);
+  }
+  else if (a === "resumeHost"){
+    const bk = loadLS("coc:host");
+    const sess = loadLS("coc:session");
+    if (bk && bk.S){ C.name = (sess && sess.name) || C.name; C.emoji = (sess && sess.emoji) || C.emoji; startHost(bk); }
+    else { C.err = "Couldn't find that game to resume."; render(); }
+  }
+  else if (a === "joinRoom"){
+    if (C.codeInput.length < 4){ C.err = "Type the 4-letter room code."; render(); return; }
+    if (!C.name.trim()){ C.err = "Pick a name first!"; render(); return; }
+    C.err = ""; C.mode = "room"; C.pub = null;
+    startJoin(C.codeInput);
+  }
+  else if (a === "resumeGuest"){
+    const sess = loadLS("coc:session");
+    if (sess && sess.code){ C.name = sess.name || C.name; C.emoji = sess.emoji || C.emoji; C.mode = "room"; C.pub = null; C.err=""; startJoin(sess.code); }
+  }
+  else if (a === "startGame"){ if (C.isHost) startGame(); }
+  else if (a === "selCard"){
+    const i = parseInt(v, 10);
+    const need = (C.pub && C.pub.black && C.pub.black.pick) || 1;
+    const at = C.sel.indexOf(i);
+    if (at >= 0) C.sel.splice(at, 1);
+    else { if (C.sel.length >= need) C.sel.shift(); C.sel.push(i); }
+    render();
+  }
+  else if (a === "submitCards"){
+    const need = (C.pub && C.pub.black && C.pub.black.pick) || 1;
+    if (C.sel.length !== need) return;
+    const cards = C.sel.map(i => C.pub.hand[i]);
+    C.sel = [];
+    if (C.isHost) onSubmit(MYPID, S.round, cards);
+    else if (joinConn && joinConn.open) joinConn.send({ t: "submit", pid: MYPID, round: C.pub.round, cards: cards });
+  }
+  else if (a === "pickCard"){
+    if (C.picked) return;
+    C.picked = true;
+    const sid = parseInt(v, 10);
+    if (C.isHost) onPick(MYPID, S.round, sid);
+    else if (joinConn && joinConn.open) joinConn.send({ t: "czarPick", pid: MYPID, round: C.pub.round, sid: sid });
+  }
+  else if (a === "nextRound"){ if (C.isHost) nextRound(); }
+  else if (a === "skipRound"){ if (C.isHost) skipRound(); }
+  else if (a === "endGame"){ if (C.isHost && confirm("End the game for everyone?")) endGameNow(); }
+  else if (a === "playAgain"){ if (C.isHost) playAgain(); }
+  else if (a === "leave"){
+    if (C.isHost && S && S.phase !== "over" && S.players.length > 1){
+      if (!confirm("You're the host — leaving ends the game for everyone. Leave?")) return;
+    }
+    leaveGame();
+  }
+});
+
+/* keep typed values on re-render */
+document.addEventListener("input", (e) => {
+  if (e.target && (e.target.id === "f-name" || e.target.id === "f-code")) grabInputs();
+});
+function restoreFocusFix(){ /* re-render loses focus; acceptable on tap-driven screens */ }
+
+window.addEventListener("beforeunload", () => {
+  if (!C.isHost && joinConn && joinConn.open){ try { joinConn.send({ t: "leave", pid: MYPID }); } catch(e){} }
+});
+
+/* boot: ?code=ABCD prefills join */
+(function boot(){
+  const m = location.search.match(/[?&]code=([A-Za-z]{4})/);
+  if (m){ C.codeInput = m[1].toUpperCase(); C.mode = "join"; }
+  render();
+})();
+</script>
+</body>
+</html>
